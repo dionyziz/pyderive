@@ -1,10 +1,11 @@
-import parser
+from parser import parse
 from derive import *
+from simplify import *
 
 while 1:
     try:
         s = raw_input( 'pyderive > ' )
     except EOFError:
         break
-    # print( parser.parse( s ) )
-    print( derive( parser.parse( s ), 'x' ) )
+    # print( simplify( parse( s ) ) )
+    print( simplify( derive( parse( s ), 'x' ) ) )
