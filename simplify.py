@@ -80,4 +80,4 @@ def simplify( expr ):
                     log( expr.arg.const )
             }[ expr.func ]()
         return expr
-    raise SimplificationException
+    return expr

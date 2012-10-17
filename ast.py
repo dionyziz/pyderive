@@ -8,12 +8,16 @@ class astNode( object ):
         raise AbstractClassException
     def __repr__( self ):
         return self.toString( 1 )
+    def __ne__( self, y ):
+        return not self == y
 
 class astVar( astNode ):
     def __init__( self, var ):
         self.var = var
     def toString( self, level ):
         return self.var
+    def __eq__( self, y ):
+        return self.var == y.var
 
 class astConst( astNode ):
     def __init__( self, const ):
@@ -22,6 +26,8 @@ class astConst( astNode ):
         if self.const.is_integer():
             return str( int( self.const ) )
         return str( self.const )
+    def __eq__( self, y ):
+        return self.const == y.const
 
 class astBooleanOperator( astNode ):
     def toString( self, level ):
@@ -35,6 +41,10 @@ class astBooleanOperator( astNode ):
     def __init__( self, left, right ):
         self.left = left
         self.right = right
+    def __eq__( self, y ):
+        return self.__class__.__name__ == y.__class__.__name__ \
+           and self.left == y.left \
+           and self.right == y.right
 
 class astPlus( astBooleanOperator ):
     operator = '+'
@@ -52,6 +62,10 @@ class astDivide( astBooleanOperator ):
     operator = '/'
     priority = 2
 
+class astPower( astBooleanOperator ):
+    operator = '^'
+    priority = 3
+
 class astUminus( astNode ):
     priority = 4
     def toString( self, level ):
@@ -62,6 +76,8 @@ class astUminus( astNode ):
         )
     def __init__( self, arg ):
         self.arg = arg
+    def __eq__( self, y ):
+        return self.arg == y.arg
 
 class astFunc( astNode ):
     def toString( self, level ):
@@ -69,10 +85,9 @@ class astFunc( astNode ):
     def __init__( self, func, arg ):
         self.func = func
         self.arg = arg
-
-class astPower( astBooleanOperator ):
-    operator = '^'
-    priority = 3
+    def __eq__( self, y ):
+        return self.func == y.func \
+           and self.arg == y.arg
 
 def parenthesize( expression, selfLevel, parentLevel ):
     if selfLevel < parentLevel:
