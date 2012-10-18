@@ -10,6 +10,18 @@ class astNode( object ):
         return self.toString( 1 )
     def __ne__( self, y ):
         return not self == y
+    def __neg__( self, y ):
+        return astUminus( y )
+    def __add__( self, y ):
+        return astPlus( self, y )
+    def __sub__( self, y ):
+        return astMinus( self, y )
+    def __mul__( self, y ):
+        return astTimes( self, y )
+    def __pow__( self, y ):
+        return astPower( self, y )
+    def __div__( self, y ):
+        return astDivide( self, y )
 
 class astVar( astNode ):
     def __init__( self, var ):
