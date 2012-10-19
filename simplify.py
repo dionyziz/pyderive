@@ -50,11 +50,14 @@ def simplifyTimes( expr ):
     if isinstance( expr.right, astConst ):
         # put constant factor on the left
         return simplify( expr.right * expr.left )
+    if isinstance( expr.left, astUminus ) and isinstance( expr.right, astUminus ):
+        # minus * minus = plus
+        return simplify( expr.left.arg * expr.right.arg )
     if isinstance( expr.left, astUminus ):
         # pull out the minus
-        return simplify( expr.left.arg * expr.right )
+        return simplify( astUminus( expr.left.arg * expr.right ) )
     if isinstance( expr.right, astUminus ):
-        return simplify( expr.left * expr.right.arg ) 
+        return simplify( astUminus( expr.left * expr.right.arg ) ) 
     if isinstance( expr.left, astConst ):
         if expr.left.const == 0:
             return astConst( 0 )
