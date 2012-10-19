@@ -1,5 +1,8 @@
 from ast import *
 
+class ParseException( Exception ):
+    pass
+
 tokens = (
     'VAR', 'CONST',
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'POWER',
@@ -90,7 +93,7 @@ def p_exression_func( t ):
     t[ 0 ] = astFunc( t[ 1 ], t[ 3 ] )
 
 def p_error( t ):
-    print( "Syntax error at '%s'" % t.value )
+    raise ParseException
 
 import ply.yacc as yacc
 yacc.yacc()

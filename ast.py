@@ -10,8 +10,8 @@ class astNode( object ):
         return self.toString( 1 )
     def __ne__( self, y ):
         return not self == y
-    def __neg__( self, y ):
-        return astUminus( y )
+    def __neg__( self ):
+        return astUminus( self )
     def __add__( self, y ):
         return astPlus( self, y )
     def __sub__( self, y ):
