@@ -14,7 +14,7 @@ def decomposeMononym( mononym ):
             return ( '+', left + right )
         return ( '-', left + right )
     if isinstance( mononym, astUminus ):
-        return ( '-', [ mononym ] )
+        return ( '-', [ mononym.arg ] )
     if isinstance( mononym, astConst ) and mononym.const < 0:
         return ( '-', [ mononym ] )
     return ( '+', [ mononym ] )
@@ -106,5 +106,7 @@ def simplifyMononym( mononym ):
             if unificationNeeded:
                 break
     parts.sort()
-    return composeMononym( parts )
-
+    expr = composeMononym( parts )
+    if sign == '-':
+        return astUminus( expr )
+    return expr

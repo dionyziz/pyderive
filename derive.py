@@ -36,7 +36,7 @@ def derive( expr, withRespectTo ):
     if isinstance( expr, astMinus ):
         return derive( expr.left, withRespectTo ) - derive( expr.right, withRespectTo )
     if isinstance( expr, astUminus ):
-        return -derive( expr.left, withRespectTo )
+        return -derive( expr.arg, withRespectTo )
     if isinstance( expr, astTimes ):
         # product rule
         return derive( expr.left, withRespectTo ) * expr.right \

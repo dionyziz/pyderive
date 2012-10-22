@@ -153,7 +153,8 @@ class astFunc( astNode ):
         self.func = func
         self.arg = arg
     def __eq__( self, y ):
-        return self.func == y.func \
+        return isinstance( y, astFunc ) \
+           and self.func == y.func \
            and self.arg == y.arg
     def __lt__( self, y ):
         if self.__class__ != y.__class__:

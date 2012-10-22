@@ -6,6 +6,8 @@ def decomposePolyonym( polyonym ):
     if isinstance( polyonym, astPlus ):
         return decomposePolyonym( polyonym.left ) + decomposePolyonym( polyonym.right )
     elif isinstance( polyonym, astMinus ):
+        if isinstance( polyonym.right, astUminus ):
+            return decomposePolyonym( polyonym.left ) + decomposePolyonym( polyonym.right.arg )
         return decomposePolyonym( polyonym.left ) + decomposePolyonym( -polyonym.right )
     else:
         # it is a mononym
@@ -73,6 +75,7 @@ def unifyPolyonymMononyms( a, b ):
 
 def simplifyPolyonym( polyonym ):
     mononyms = decomposePolyonym( polyonym )
+    # print( mononyms )
     # print( "Decomposed polyonym %s" % polyonym )
     # print( mononyms )
     unificationNeeded = True
