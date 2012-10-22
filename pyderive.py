@@ -18,7 +18,6 @@ while 1:
         break
     args = s.split( ' ' )
     command = args[ 0 ]
-    # print( simplify( parse( s ) ) )
     if command == 'help':
         help( args )
     elif command == 'exit':
