@@ -1,6 +1,6 @@
 from parser import *
 from derive import *
-from simplify import *
+from simplify.simplify import simplify
 from help import *
 
 print( 'PyDerive - A symbolic derivation tool.' )
