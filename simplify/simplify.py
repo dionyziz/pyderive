@@ -22,9 +22,9 @@ def expand( multiplication ):
     for ( signA, a ) in factorTerms:
         for ( signB, b ) in exprTerms:
             if signA == signB:
-                ret.append( ( '+', a * b ) )
+                ret.append( ( PLUS, a * b ) )
             else:
-                ret.append( ( '-', a * b ) )
+                ret.append( ( MINUS, a * b ) )
     return simplify( composePolyonym( ret ) )
 
 def simplifyTimes( expr ):
@@ -34,6 +34,14 @@ def simplifyUminus( expr ):
     expr.arg = simplify( expr.arg )
     if isinstance( expr.arg, astConst ):
         return astConst( -expr.arg.const )
+    if isinstance( expr.arg, astUminus ):
+        return expr.arg.arg
+    if isinstance( expr.arg, astPlus ) \
+    or isinstance( expr.arg, astMinus ):
+        # uminus expansion
+        return simplifyPolyonym( \
+            composePolyonym( [ ( not sign, expr ) for ( sign, expr ) in decomposePolyonym( expr.arg ) ] ) \
+        )
     return expr
 
 def simplifyDivide( expr ):
@@ -111,4 +119,3 @@ def simplify( expr ):
 # )
 
 # print( decomposeMononym( astConst( 2 ) * ( astVar( 'x' ) ** astConst( 2 ) ) * astFunc( 'sin', astVar( 'x' )  ) ) )
-# Testcase: x + y + z + 2 * y + 2 * x - x

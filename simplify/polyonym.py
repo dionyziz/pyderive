@@ -12,18 +12,18 @@ def decomposePolyonym( polyonym ):
     else:
         # it is a mononym
         if isinstance( polyonym, astUminus ):
-            return [ ( '-', polyonym.arg ) ]
+            return [ ( MINUS, polyonym.arg ) ]
         else:
-            return [ ( '+', polyonym ) ]
+            return [ ( PLUS, polyonym ) ]
 
 def composePolyonym( mononyms ):
     ( sign, expr ) = mononyms[ 0 ]
-    if sign == '+':
+    if sign == PLUS:
         ret = expr
     else:
         ret = -expr
     for ( sign, expr ) in mononyms[ 1: ]:
-        if sign == '+':
+        if sign == PLUS:
             ret += expr
         else:
             ret -= expr

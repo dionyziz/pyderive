@@ -3,6 +3,10 @@ from ast import *
 class ParseException( Exception ):
     pass
 
+class LexException( ParseException ):
+    def __init__( self, character ):
+        self.character = character
+
 tokens = (
     'VAR', 'CONST',
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'POWER',
@@ -35,8 +39,8 @@ def t_newline( t ):
     t.lexer.lineno += t.value.count( "\n" )
     
 def t_error(t):
-    print( "Illegal character '%s'" % t.value[ 0 ] )
     t.lexer.skip( 1 )
+    raise LexException( t.value[ 0 ] )
     
 # Build the lexer
 import ply.lex as lex

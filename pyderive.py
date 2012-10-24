@@ -1,6 +1,8 @@
 from parser import *
 from derive import *
 from simplify.simplify import simplify
+from simplify.mononym import decomposeMononym
+import sys
 from help import *
 
 print( 'PyDerive - A symbolic derivation tool.' )
@@ -9,6 +11,9 @@ print( 'Type `help` for help.' )
 mode = 'derive'
 modes = [ 'derive', 'simplify', 'derive-only', 'parse' ]
 var = 'x'
+
+# print( decomposeMononym( parse( '-1 * x' ) ) )
+# sys.exit( 0 )
 
 while 1:
     try:
@@ -49,5 +54,7 @@ while 1:
             elif mode == 'derive-only':
                 res = derive( parse( s ), var )
             print( res )
+        except LexException as e:
+            print( 'Syntax error: Invalid character "%s"' % e.character )
         except ParseException:
             print( 'Syntax error' )

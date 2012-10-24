@@ -1,5 +1,8 @@
 from math import *
 
+PLUS = True
+MINUS = False
+
 class AbstractClassException( Exception ):
     pass
 
@@ -140,6 +143,8 @@ class astUminus( astNode ):
     def __init__( self, arg ):
         self.arg = arg
     def __eq__( self, y ):
+        if self.__class__ != y.__class__:
+            return False
         return self.arg == y.arg
     def __lt__( self, y ):
         if self.__class__ != y.__class__:

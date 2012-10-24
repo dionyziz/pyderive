@@ -11,15 +11,23 @@ def decomposeMononym( mononym ):
         ( signleft, left ) = decomposeMononym( mononym.left )
         ( signright, right ) = decomposeMononym( mononym.right )
         if signleft == signright:
-            return ( '+', left + right )
-        return ( '-', left + right )
+            return ( PLUS, left + right )
+        return ( MINUS, left + right )
     if isinstance( mononym, astUminus ):
-        return ( '-', [ mononym.arg ] )
-    if isinstance( mononym, astConst ) and mononym.const < 0:
-        return ( '-', [ mononym ] )
-    return ( '+', [ mononym ] )
+        return ( MINUS, [ mononym.arg ] )
+    if isinstance( mononym, astConst ):
+        if mononym.const == -1:
+            return ( MINUS, [] )
+        if mononym.const == 1:
+            return ( PLUS, [] )
+        if mononym.const < 0:
+            return ( MINUS, [ astConst( -mononym.const ) ] )
+    return ( PLUS, [ mononym ] )
 
 def composeMononym( terms ):
+    if len( terms ) == 0:
+        # mononym of no terms
+        return astConst( 1 )
     if len( terms ) == 1:
         return terms[ 0 ]
     # compose it into the form
@@ -107,6 +115,6 @@ def simplifyMononym( mononym ):
                 break
     parts.sort()
     expr = composeMononym( parts )
-    if sign == '-':
+    if sign == MINUS:
         return astUminus( expr )
     return expr
