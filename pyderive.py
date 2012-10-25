@@ -1,7 +1,6 @@
 from parser import *
 from derive import *
 from simplify.simplify import simplify
-from simplify.mononym import decomposeMononym
 import sys
 from help import *
 
@@ -12,15 +11,24 @@ mode = 'derive'
 modes = [ 'derive', 'simplify', 'derive-only', 'parse' ]
 var = 'x'
 
-# print( decomposeMononym( parse( '-1 * x' ) ) )
-# sys.exit( 0 )
-
 while 1:
     try:
-        s = raw_input( 'pyderive > ' )
+        if mode == 'derive':
+            if var == 'x':
+                s = raw_input( '> ' )
+            else:
+                s = raw_input( 'd/d' + var + ' > ' )
+        elif mode == 'simplify':
+            s = raw_input( 'simplify > ' )
+        elif mode == 'parse':
+            s = raw_input( 'parse > ' )
+        elif mode == 'derive-only':
+            s = raw_input( 'derive-only > ' )
     except EOFError:
         print( '\nGoodbye' )
         break
+    if len( s ) == 0:
+        continue
     args = s.split( ' ' )
     command = args[ 0 ]
     if command == 'help':
@@ -43,6 +51,10 @@ while 1:
             else:
                 mode = args[ 1 ]
                 print( 'Mode of operation is now "%s".' % mode )
+        else:
+            # typing `mode` reverts to default mode
+            mode = 'derive'
+            print( 'Mode of operation is now "%s".' % mode )
     else:
         try:
             if mode == 'derive':

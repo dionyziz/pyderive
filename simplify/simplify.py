@@ -1,23 +1,23 @@
 from math import *
 from ast import *
-from .mononym import *
-from .polyonym import *
+from .monomial import *
+from .polynomial import *
 
 class SimplificationException( Exception ):
     pass
 
 def simplifyPlus( expr ):
-    return simplifyPolyonym( expr )
+    return simplifyPolynomial( expr )
 
 def simplifyMinus( expr ):
-    return simplifyPolyonym( expr )
+    return simplifyPolynomial( expr )
 
 def expand( multiplication ):
     assert( isinstance( multiplication, astTimes ) )
 
     # apply distributivity law
-    factorTerms = decomposePolyonym( multiplication.left )
-    exprTerms = decomposePolyonym( multiplication.right )
+    factorTerms = decomposePolynomial( multiplication.left )
+    exprTerms = decomposePolynomial( multiplication.right )
     ret = []
     for ( signA, a ) in factorTerms:
         for ( signB, b ) in exprTerms:
@@ -25,10 +25,10 @@ def expand( multiplication ):
                 ret.append( ( PLUS, a * b ) )
             else:
                 ret.append( ( MINUS, a * b ) )
-    return simplify( composePolyonym( ret ) )
+    return simplify( composePolynomial( ret ) )
 
 def simplifyTimes( expr ):
-    return simplifyMononym( expr )
+    return simplifyMonomial( expr )
 
 def simplifyUminus( expr ):
     expr.arg = simplify( expr.arg )
@@ -36,11 +36,15 @@ def simplifyUminus( expr ):
         return astConst( -expr.arg.const )
     if isinstance( expr.arg, astUminus ):
         return expr.arg.arg
+    # if isinstance( expr.arg, astTimes ) \
+    #    and isinstance( expr.arg.left, astConst ):
+    #     # pull the uminus into the monomial constant
+    #     return ( -expr.arg.left ) * expr.arg.right
     if isinstance( expr.arg, astPlus ) \
     or isinstance( expr.arg, astMinus ):
         # uminus expansion
-        return simplifyPolyonym( \
-            composePolyonym( [ ( not sign, expr ) for ( sign, expr ) in decomposePolyonym( expr.arg ) ] ) \
+        return simplifyPolynomial( \
+            composePolynomial( [ ( not sign, expr ) for ( sign, expr ) in decomposePolynomial( expr.arg ) ] ) \
         )
     return expr
 
@@ -60,6 +64,28 @@ def simplifyPower( expr ):
         return expr.left
     if isinstance( expr.right, astConst ) and expr.right.const < 0:
         return astConst( 1 ) / ( expr.left ** astConst( -expr.right.const ) )
+    if isinstance( expr.left, astUminus ) \
+       and isinstance( expr.right, astConst ) \
+       and expr.right.const % 2 == 0:
+        # even powers cancel negative signs
+        return expr.left.arg ** expr.right
+    if isinstance( expr.left, astPlus ) \
+       and isinstance( expr.right, astConst ) \
+       and expr.right.const == 2:
+        # ( a + b )^2 = a^2 + 2ab + b^2
+        a = expr.left.left
+        b = expr.left.right
+        # we need to simplify again as, for instance, "b"
+        # could be a sum of its own
+        s = a ** astConst( 2 ) + astConst( 2 ) * a * b + b ** astConst( 2 )
+        return simplify( s )
+    if isinstance( expr.left, astMinus ) \
+       and isinstance( expr.right, astConst ) \
+       and expr.right.const == 2:
+        # ( a - b )^2 = a^2 - 2ab + b^2
+        a = expr.left.left
+        b = expr.left.right
+        return simplify( ( a ** astConst( 2 ) ) - ( astConst( 2 ) * a * b ) + ( b ** astConst( 2 ) ) )
     if isinstance( expr.left, astPower ) \
        and isinstance( expt.left.right, astConst ) \
        and isinstance( expr.right, astConst ):
@@ -118,4 +144,4 @@ def simplify( expr ):
 #     )
 # )
 
-# print( decomposeMononym( astConst( 2 ) * ( astVar( 'x' ) ** astConst( 2 ) ) * astFunc( 'sin', astVar( 'x' )  ) ) )
+# print( decomposeMonomial( astConst( 2 ) * ( astVar( 'x' ) ** astConst( 2 ) ) * astFunc( 'sin', astVar( 'x' )  ) ) )

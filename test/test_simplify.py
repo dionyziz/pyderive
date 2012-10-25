@@ -9,6 +9,12 @@ class TestSimplify( unittest.TestCase ):
         self.assertEqual( sa, sb )
     def assertNotSame( self, a, b ):
         self.assertNotEqual( simplify( parse( a ) ), simplify( parse( b ) ) )
+    def testId( self ):
+        self.assertSame( 'x', 'x' )
+        self.assertSame( '5', '5' )
+        self.assertNotSame( 'x', 'y' )
+        self.assertNotSame( 'x', '5' )
+        self.assertNotSame( '3', '5' )
     def testParens( self ):
         self.assertSame( 'x + y', '(x + y)' )
         self.assertSame( 'x + y', '(((x + y)))' )
@@ -35,5 +41,10 @@ class TestSimplify( unittest.TestCase ):
     def testErasure( self ):
         self.assertSame( 'x - x', '0' )
         self.assertSame( '2 * x - 2 * x', '0' )
+        # two assertions by rob kolstad
         self.assertSame( '(x+3-x-2-1)*x^2', '0' )
         self.assertSame( '(x+4-x-2-1)*x^2', 'x^2' )
+        # from ##math
+        self.assertSame( '0 - (a + b)', '-a -b' )
+        self.assertSame( '(a+b)^2+(a-b)^2 - 2*(a^2+b^2)', '0' )
+        self.assertSame( '(a+b)^2+(a-b)^2 - 2*(a^2+b^2+c)', '(-2) * c' )

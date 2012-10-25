@@ -51,8 +51,8 @@ lex.lex()
 precedence = (
     ( 'left', 'PLUS', 'MINUS' ),
     ( 'left', 'TIMES', 'DIVIDE' ),
-    ( 'right', 'POWER' ),
-    ( 'right', 'UMINUS' )
+    ( 'right', 'UMINUS' ),
+    ( 'right', 'POWER' )
 )
 
 # dictionary of names

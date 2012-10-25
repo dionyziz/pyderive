@@ -30,6 +30,9 @@ class TestParser( unittest.TestCase ):
     def testComposition( self ):
         self.assertEqual( parse( 'sin(cos(tan(x * y)))' ), \
                           astFunc( 'sin', astFunc( 'cos', astFunc( 'tan', astVar( 'x' ) * astVar( 'y' ) ) ) ) )
+    def testOrder( self ):
+        self.assertEqual( parse( '-(a^2)' ), parse( '-a^2' ) )
+        self.assertNotEqual( parse( '-a^2' ), parse( '(-a)^2' ) )
     def testError( self ):
         self.assertRaises( ParseException, lambda: parse( '( x + y' ) )
         self.assertRaises( LexException, lambda: parse( '( x "+" y )' ) )

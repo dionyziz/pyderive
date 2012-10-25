@@ -1,43 +1,43 @@
 from ast import *
 import simplify
 
-def decomposeMononym( mononym ):
-    """Take a mononym and break it into factoring parts. Extract the sign.
+def decomposeMonomial( monomial ):
+    """Take a monomial and break it into factoring parts. Extract the sign.
     
     e.g. 2 * x * y is broken down to ( +, [ 2, x, y ] )
     """
 
-    if isinstance( mononym, astTimes ):
-        ( signleft, left ) = decomposeMononym( mononym.left )
-        ( signright, right ) = decomposeMononym( mononym.right )
+    if isinstance( monomial, astTimes ):
+        ( signleft, left ) = decomposeMonomial( monomial.left )
+        ( signright, right ) = decomposeMonomial( monomial.right )
         if signleft == signright:
             return ( PLUS, left + right )
         return ( MINUS, left + right )
-    if isinstance( mononym, astUminus ):
-        return ( MINUS, [ mononym.arg ] )
-    if isinstance( mononym, astConst ):
-        if mononym.const == -1:
+    if isinstance( monomial, astUminus ):
+        return ( MINUS, [ monomial.arg ] )
+    if isinstance( monomial, astConst ):
+        if monomial.const == -1:
             return ( MINUS, [] )
-        if mononym.const == 1:
+        if monomial.const == 1:
             return ( PLUS, [] )
-        if mononym.const < 0:
-            return ( MINUS, [ astConst( -mononym.const ) ] )
-    return ( PLUS, [ mononym ] )
+        if monomial.const < 0:
+            return ( MINUS, [ astConst( -monomial.const ) ] )
+    return ( PLUS, [ monomial ] )
 
-def composeMononym( terms ):
+def composeMonomial( terms ):
     if len( terms ) == 0:
-        # mononym of no terms
+        # monomial of no terms
         return astConst( 1 )
     if len( terms ) == 1:
         return terms[ 0 ]
     # compose it into the form
     # a * (b * (c * ... ))
     # that way the constant factors are up in the front
-    # and can be manipulated easily by the polyonym simplifier
-    return terms[ 0 ] * composeMononym( terms[ 1: ] )
+    # and can be manipulated easily by the polynomial simplifier
+    return terms[ 0 ] * composeMonomial( terms[ 1: ] )
 
-def unifyMononymFactors( a, b ):
-    """Take two factors of a mononym and attempt to unify them.
+def unifyMonomialFactors( a, b ):
+    """Take two factors of a monomial and attempt to unify them.
 
     Return values can be:
     * None, if no unification is possible
@@ -45,7 +45,7 @@ def unifyMononymFactors( a, b ):
     * A list of astNodes if the unification yielded multiple terms (e.g. by expansion)
     """
 
-    # uminuses have been simplified during mononym decomposition
+    # uminuses have been simplified during monomial decomposition
     assert( not isinstance( a, astUminus ) )
     assert( not isinstance( b, astUminus ) )
 
@@ -82,21 +82,24 @@ def unifyMononymFactors( a, b ):
     # x * x^n = x^( n + 1 )
     if isinstance( a, astPower ) and isinstance( b, astVar ) \
        and isinstance( a.left, astVar ) and a.left.var == b.var:
-       return unifyMononymFactors( a, b ** astConst( 1 ) )
+       return unifyMonomialFactors( a, b ** astConst( 1 ) )
     # x^n * x = x^( n + 1 )
     if isinstance( b, astPower ) and isinstance( a, astVar ) \
        and isinstance( b.left, astVar ) and b.left.var == a.var:
-       return unifyMononymFactors( b ** astConst( 1 ), a )
+       return unifyMonomialFactors( b ** astConst( 1 ), a )
     return None
     
-def simplifyMononym( mononym ):
-    ( sign, parts ) = decomposeMononym( mononym )
+def simplifyMonomial( monomial ):
+    ( sign, parts ) = decomposeMonomial( monomial )
+    # print( "Decomposed monomial %s into:" % monomial )
+    # print( sign )
+    # print( parts )
     unificationNeeded = True
     while unificationNeeded:
         unificationNeeded = False
         for i, parti in enumerate( parts ):
             for j, partj in enumerate( parts[ i + 1: ] ):
-                res = unifyMononymFactors( parti, partj )
+                res = unifyMonomialFactors( parti, partj )
                 if res is not None:
                     # we found a possible unification between two factors
                     # parti and partj
@@ -114,7 +117,16 @@ def simplifyMononym( mononym ):
             if unificationNeeded:
                 break
     parts.sort()
-    expr = composeMononym( parts )
+    expr = composeMonomial( parts )
     if sign == MINUS:
-        return astUminus( expr )
-    return expr
+        res = astUminus( expr )
+    else:
+        res = expr
+    if monomial != res:
+        # may need to re-apply simplification
+        # until we reach a fixed point
+        # if, for example, the monomial simplification
+        # yielded a polynomial through distributivity of multiplication
+        return simplify.simplify( res )
+    # we've reached a fixes point
+    return res

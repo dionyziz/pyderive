@@ -48,6 +48,7 @@ class astNode( ComparableMixin ):
         # each subclass must implement < individually
         # if the classes are of different types, then this is called
         astTypes = [
+            'astUminus',
             'astConst', 'astVar',
             'astPlus', 'astMinus',
             'astTimes', 'astDivide',
@@ -55,6 +56,9 @@ class astNode( ComparableMixin ):
             'astFunc'
         ]
         # print( 'Comparing a %s to an %s.' % ( self.__class__.__name__, y.
+        assert self.__class__.__name__ in astTypes, 'Invalid type: ' + self.__class__.__name__
+        assert y.__class__.__name__ in astTypes, 'Invalid type: ' + y.__class__.__name__
+            
         return astTypes.index( self.__class__.__name__ ) < astTypes.index( y.__class__.__name__ )
 
 class astVar( astNode ):
@@ -174,5 +178,6 @@ def parenthesize( expression, selfLevel, parentLevel ):
     if selfLevel < parentLevel:
         left, right = '(', ')'
     else:
+        # no parentheses unless required
         left, right = '', ''
     return left + expression + right

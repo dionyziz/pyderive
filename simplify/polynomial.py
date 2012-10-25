@@ -1,43 +1,43 @@
 from ast import *
 import simplify
 
-def decomposePolyonym( polyonym ):
+def decomposePolynomial( polynomial ):
     ret = []
-    if isinstance( polyonym, astPlus ):
-        return decomposePolyonym( polyonym.left ) + decomposePolyonym( polyonym.right )
-    elif isinstance( polyonym, astMinus ):
-        if isinstance( polyonym.right, astUminus ):
-            return decomposePolyonym( polyonym.left ) + decomposePolyonym( polyonym.right.arg )
-        return decomposePolyonym( polyonym.left ) + decomposePolyonym( -polyonym.right )
+    if isinstance( polynomial, astPlus ):
+        return decomposePolynomial( polynomial.left ) + decomposePolynomial( polynomial.right )
+    elif isinstance( polynomial, astMinus ):
+        if isinstance( polynomial.right, astUminus ):
+            return decomposePolynomial( polynomial.left ) + decomposePolynomial( polynomial.right.arg )
+        return decomposePolynomial( polynomial.left ) + decomposePolynomial( simplify.simplify( -polynomial.right ) )
     else:
-        # it is a mononym
-        if isinstance( polyonym, astUminus ):
-            return [ ( MINUS, polyonym.arg ) ]
+        # it is a monomial
+        if isinstance( polynomial, astUminus ):
+            return [ ( MINUS, polynomial.arg ) ]
         else:
-            return [ ( PLUS, polyonym ) ]
+            return [ ( PLUS, polynomial ) ]
 
-def composePolyonym( mononyms ):
-    ( sign, expr ) = mononyms[ 0 ]
+def composePolynomial( monomials ):
+    ( sign, expr ) = monomials[ 0 ]
     if sign == PLUS:
         ret = expr
     else:
         ret = -expr
-    for ( sign, expr ) in mononyms[ 1: ]:
+    for ( sign, expr ) in monomials[ 1: ]:
         if sign == PLUS:
             ret += expr
         else:
             ret -= expr
     return ret
 
-def unifyPolyonymMononyms( a, b ):
-    """Take two mononyms of a polyonym and attempt to unify them.
+def unifyPolynomialMonomials( a, b ):
+    """Take two monomials of a polynomial and attempt to unify them.
 
     Return values can be:
     * None, if no unification is possible
     * A single astNode instance, if the two factors have been successfully unified
     * A list of astNodes if the unification yielded multiple terms (e.g. by expansion)
     """
-    # minuses have been pulled out by the polyonym decomposer
+    # minuses have been pulled out by the polynomial decomposer
     assert( not isinstance( a, astUminus ) )
     assert( not isinstance( b, astUminus ) )
 
@@ -58,53 +58,53 @@ def unifyPolyonymMononyms( a, b ):
        and isinstance( q, astTimes ) and isinstance( q.left, astConst ) \
        and p.right == q.right:
         # n * a + m * a = (n + m) * a
-        ( sign, factor ) = unifyPolyonymMononyms( ( s, p.left ), ( t, q.left ) )
+        ( sign, factor ) = unifyPolynomialMonomials( ( s, p.left ), ( t, q.left ) )
         return ( sign, simplify.simplify( factor * p.right ) )
     if isinstance( p, astTimes ) and isinstance( p.left, astConst ) \
        and q == p.right:
         # n * a + 1 * a = (n + 1) * a
-        return unifyPolyonymMononyms( a, ( t, astConst( 1 ) * q ) )
+        return unifyPolynomialMonomials( a, ( t, astConst( 1 ) * q ) )
     if isinstance( q, astTimes ) and isinstance( q.left, astConst ) \
        and p == q.right:
         # 1 * a + n * a = (n + 1) * a
-        return unifyPolyonymMononyms( ( s, astConst( 1 ) * p ), b )
+        return unifyPolynomialMonomials( ( s, astConst( 1 ) * p ), b )
     if p == q:
         # a + a = 2a
-        return unifyPolyonymMononyms( ( s, astConst( 1 ) * p ), ( t, astConst( 1 ) * q ) )
+        return unifyPolynomialMonomials( ( s, astConst( 1 ) * p ), ( t, astConst( 1 ) * q ) )
     return None
 
-def simplifyPolyonym( polyonym ):
-    mononyms = decomposePolyonym( polyonym )
-    # print( mononyms )
-    # print( "Decomposed polyonym %s" % polyonym )
-    # print( mononyms )
+def simplifyPolynomial( polynomial ):
+    monomials = decomposePolynomial( polynomial )
+    # print( monomials )
+    # print( "Decomposed polynomial %s" % polynomial )
+    # print( monomials )
     unificationNeeded = True
     while unificationNeeded:
-        # print( "Simplifying polyonym consisting of mononyms:" )
-        # print( mononyms )
+        # print( "Simplifying polynomial consisting of monomials:" )
+        # print( monomials )
         unificationNeeded = False
-        for i, parti in enumerate( mononyms ):
-            for j, partj in enumerate( mononyms[ i + 1: ] ):
-                res = unifyPolyonymMononyms( parti, partj )
+        for i, parti in enumerate( monomials ):
+            for j, partj in enumerate( monomials[ i + 1: ] ):
+                res = unifyPolynomialMonomials( parti, partj )
                 if res is not None:
                     unificationNeeded = True
-                    # print( "Unified mononyms: " )
+                    # print( "Unified monomials: " )
                     # print( parti )
                     # print( partj )
                     # print( " = %s %s" % res )
                     # print( 'At locations %i and %i' % ( i, j ) )
-                    # found a possible unification between two terms of the polyonym
-                    del mononyms[ j + i + 1 ]
-                    del mononyms[ i ]
+                    # found a possible unification between two terms of the polynomial
+                    del monomials[ j + i + 1 ]
+                    del monomials[ i ]
                     # discard terms unified to 0
                     if res[ 1 ] != astConst( 0 ):
-                        mononyms.append( res )
+                        monomials.append( res )
                     break
             if unificationNeeded:
                 break
-    mononyms.sort()
-    if len( mononyms ) == 0:
+    monomials.sort()
+    if len( monomials ) == 0:
         # unification may have cancelled everything out
         return astConst( 0 )
-    return composePolyonym( mononyms )
+    return composePolynomial( monomials )
 
