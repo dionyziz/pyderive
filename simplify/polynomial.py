@@ -1,5 +1,5 @@
 from ast import *
-import simplify
+from . import simplify
 
 def decomposePolynomial( polynomial ):
     ret = []

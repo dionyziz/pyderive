@@ -88,4 +88,4 @@ def help( args ):
     }
     if topic not in topics:
         topic = 'help'
-    print '\n'.join( topics[ topic ] )
+    print('\n'.join( topics[ topic ] ))

@@ -1,5 +1,5 @@
 from ast import *
-import simplify
+from . import simplify
 
 def decomposeMonomial( monomial ):
     """Take a monomial and break it into factoring parts. Extract the sign.

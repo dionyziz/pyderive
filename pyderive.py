@@ -15,15 +15,15 @@ while 1:
     try:
         if mode == 'derive':
             if var == 'x':
-                s = raw_input( '> ' )
+                s = input( '> ' )
             else:
-                s = raw_input( 'd/d' + var + ' > ' )
+                s = input( 'd/d' + var + ' > ' )
         elif mode == 'simplify':
-            s = raw_input( 'simplify > ' )
+            s = input( 'simplify > ' )
         elif mode == 'parse':
-            s = raw_input( 'parse > ' )
+            s = input( 'parse > ' )
         elif mode == 'derive-only':
-            s = raw_input( 'derive-only > ' )
+            s = input( 'derive-only > ' )
     except EOFError:
         print( '\nGoodbye' )
         break

@@ -38,7 +38,7 @@ class astNode( ComparableMixin ):
     def __pow__( self, y ):
         assert( isinstance( y, astNode ) )
         return astPower( self, y )
-    def __div__( self, y ):
+    def __truediv__( self, y ):
         assert( isinstance( y, astNode ) )
         return astDivide( self, y )
     def __eq__( self, y ):
@@ -58,7 +58,7 @@ class astNode( ComparableMixin ):
         # print( 'Comparing a %s to an %s.' % ( self.__class__.__name__, y.
         assert self.__class__.__name__ in astTypes, 'Invalid type: ' + self.__class__.__name__
         assert y.__class__.__name__ in astTypes, 'Invalid type: ' + y.__class__.__name__
-            
+
         return astTypes.index( self.__class__.__name__ ) < astTypes.index( y.__class__.__name__ )
 
 class astVar( astNode ):
