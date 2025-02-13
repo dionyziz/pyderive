@@ -1,1 +1,1 @@
-__all__ = [ 'simplify', 'mononym', 'polyonym' ]
+__all__ = ["simplify", "mononym", "polyonym"]
